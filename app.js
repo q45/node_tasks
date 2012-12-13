@@ -5,7 +5,20 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , mongoose = require('mongoose');
+  , mongoose = require('mongoose')
+  ,mongo = require('mongodb');
+
+  var mongoUri = process.env.MONGOLAB_URI ||
+    process.env.MONGOHQ_URL ||
+    'mongodb://localhost/mydb';
+
+  mongo.Db.connect(mongoUri, function(err, db) {
+    db.collection('mydocs', function(er, collection) {
+      collection.insert({'mykey':'myvalue'}, {safe: true} , function(er, rs) {
+
+      });
+    });
+  });
 
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
@@ -14,7 +27,7 @@ var express = require('express')
     task :String
   });
   var Task = mongoose.model('Task', Task);
-
+/*
   mongoose.connect('mongodb://localhost/mydb', function(err) {
   if(!err) {
     console.log('connected to mongo DB');
@@ -22,6 +35,7 @@ var express = require('express')
     throw err;
   }
 });
+*/
 
 var app = module.exports = express.createServer();
 
