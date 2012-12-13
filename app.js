@@ -65,6 +65,23 @@ app.get('/user/:id', function(req, res) {
   res.send('show content for user id ' + req.params.id);
 });
 
+app.get('/tasks/new', function(req, res) {
+  res.render('tasks/new.jade', {
+    title: 'New Tasks'
+  });
+});
+
+app.post('/tasks', function(req, res) {
+ var task = new Task(req.body.task);
+ task.save(function(err) {
+  if(!err) {
+    res.redirect('/tasks');
+  } else {
+    res.redirect('/tasks/new');
+  }
+ });
+});
+
 app.get('/tasks', function(req, res) {
   Task.find({}, function(err, docs) {
     res.render('tasks/index', {
