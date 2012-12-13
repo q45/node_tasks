@@ -1,0 +1,78 @@
+
+/**
+ * Module dependencies.
+ */
+
+var express = require('express')
+  , routes = require('./routes')
+  , mongoose = require('mongoose');
+
+  var Schema = mongoose.Schema;
+  var ObjectId = Schema.ObjectId;
+
+  var Task = new Schema({
+    task :String
+  });
+  var Task = mongoose.model('Task', Task);
+
+  mongoose.connect('mongodb://localhost/mydb', function(err) {
+  if(!err) {
+    console.log('connected to mongo DB');
+  } else {
+    throw err;
+  }
+});
+
+var app = module.exports = express.createServer();
+
+// Configuration
+
+app.configure(function(){
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  app.use(express.static(__dirname + '/public'));
+});
+
+app.configure('development', function(){
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+
+app.configure('production', function(){
+  app.use(express.errorHandler());
+});
+
+// Routes
+
+app.get('/', routes.index);
+app.get('/contact', function(req, res){
+  var user = {
+    first_name : "billy",
+    last_name : "goat",
+
+  };
+  res.render('contact.jade',{title: 'User', user: user});
+});
+app.get('/about', function(req, res) {
+	res.send("Hello from the about route");
+});
+app.post('/', function(req, res) {
+	res.send(req.body);
+});	
+app.get('/user/:id', function(req, res) {
+  res.send('show content for user id ' + req.params.id);
+});
+
+app.get('/tasks', function(req, res) {
+  Task.find({}, function(err, docs) {
+    res.render('tasks/index', {
+    title: 'Todos Index View',
+    docs : docs
+    });
+  });
+});
+
+app.listen(3000);
+console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
